@@ -101,7 +101,7 @@ export default function HomePage() {
               {[
                 { value: 500, suffix: "+", label: "Episodes Recorded" },
                 { value: 150, suffix: "+", label: "Happy Clients" },
-                { value: 4.9, suffix: "★", label: "Average Rating" },
+                { value: 5, suffix: "★", label: "Average Rating" },
               ].map((stat, index) => (
                 <div key={index} className={`space-y-2 animate-fade-in-up animate-delay-${(index + 1) * 100}`}>
                   <AnimatedCounter 
