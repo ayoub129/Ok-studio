@@ -44,6 +44,8 @@ export function SquarePaymentForm({ bookingId, amount, onSuccess, onError }: Squ
         throw new Error('Square SDK not loaded')
       }
 
+      console.log('Initializing Square with bookingId:', bookingId)
+
       // Initialize Square Web Payments SDK
       const payments = window.Square.payments(
         process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID!,
@@ -56,6 +58,7 @@ export function SquarePaymentForm({ bookingId, amount, onSuccess, onError }: Squ
       setCard(cardPaymentMethod)
 
       // Fetch payment request data
+      console.log('Sending request to create-payment with bookingId:', bookingId)
       const response = await fetch('/api/square/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

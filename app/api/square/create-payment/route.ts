@@ -9,11 +9,17 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const { bookingId } = await request.json()
+    const body = await request.json()
+    console.log('create-payment received body:', body)
+    
+    const { bookingId } = body
 
     if (!bookingId) {
+      console.log('No bookingId provided in request body')
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 })
     }
+
+    console.log('Processing payment for bookingId:', bookingId)
 
     await connectDB()
 

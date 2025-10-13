@@ -142,11 +142,11 @@ function PaymentContent() {
 
             {/* Payment Form */}
             <SquarePaymentForm 
-              bookingId={booking.id} 
+              bookingId={booking._id || booking.id} 
               amount={booking.total_price} 
               onSuccess={(paymentResult) => {
                 // Redirect to success page
-                window.location.href = `/booking/success?bookingId=${booking.id}`
+                window.location.href = `/booking/success?bookingId=${booking._id || booking.id}`
               }}
               onError={(error) => {
                 console.error('Payment error:', error)
