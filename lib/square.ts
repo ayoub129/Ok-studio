@@ -1,10 +1,34 @@
 import { Client, Environment } from 'squareup'
 
-// Square client configuration
-export const squareClient = new Client({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN!,
-  environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
-})
+// Square client configuration - lazy initialization to avoid build-time errors
+let _squareClient: Client | null = null
+
+export function getSquareClient(): Client {
+  if (!_squareClient) {
+    if (!process.env.SQUARE_ACCESS_TOKEN) {
+      throw new Error('SQUARE_ACCESS_TOKEN environment variable is required')
+    }
+    
+    _squareClient = new Client({
+      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+      environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
+    })
+  }
+  return _squareClient
+}
+
+// For backward compatibility, export a getter
+export const squareClient = {
+  get paymentsApi() {
+    return getSquareClient().paymentsApi
+  },
+  get ordersApi() {
+    return getSquareClient().ordersApi
+  },
+  get customersApi() {
+    return getSquareClient().customersApi
+  }
+}
 
 // Square Web SDK configuration
 export const squareWebConfig = {

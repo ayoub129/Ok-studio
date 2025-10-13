@@ -64,6 +64,12 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("[v0] Error creating Square payment:", error)
+    
+    // Handle specific Square client errors
+    if (error instanceof Error && error.message.includes('SQUARE_ACCESS_TOKEN')) {
+      return NextResponse.json({ error: "Payment service configuration error" }, { status: 500 })
+    }
+    
     return NextResponse.json({ error: "Failed to create payment request" }, { status: 500 })
   }
 }
