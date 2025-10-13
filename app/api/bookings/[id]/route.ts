@@ -3,6 +3,9 @@ import connectDB from "@/lib/mongodb"
 import Booking from "@/lib/models/Booking"
 import mongoose from "mongoose"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await connectDB()
