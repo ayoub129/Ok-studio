@@ -173,19 +173,6 @@ export default async function ServicesPage() {
         </section>
       </ScrollReveal>
 
-      {/* Divider Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="w-24 h-0.5 bg-foreground/20 mx-auto mb-8"></div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Looking for something extra? Our additional services can take your podcast to the next level.
-            </p>
-          </div>
-        </div>
-      </section>
-
-
       {/* Process Section */}
       <ScrollReveal>
         <section className="py-24 lg:py-32 bg-muted/20">
