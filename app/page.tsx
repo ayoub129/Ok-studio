@@ -1,3 +1,4 @@
+import React from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { ScrollReveal } from "@/components/scroll-reveal"
@@ -23,7 +24,24 @@ import {
   Calendar,
 } from "lucide-react"
 
-export default function HomePage() {
+async function getServices() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services`, {
+      cache: 'no-store' // Ensure fresh data
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch services')
+    }
+    const data = await response.json()
+    return data.services || []
+  } catch (error) {
+    console.error('Error fetching services:', error)
+    return []
+  }
+}
+
+export default async function HomePage() {
+  const services = await getServices()
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -366,52 +384,39 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-              {[
-                {
-                  icon: Radio,
-                  title: "Podcast Recording",
-                  price: "$150/hr",
-                  description: "Professional recording sessions with top-tier equipment and technical support",
-                  features: ["Premium microphones", "Soundproof booth", "Live monitoring"],
-                },
-                {
-                  icon: Headphones,
-                  title: "Audio Editing",
-                  price: "$100/hr",
-                  description: "Expert post-production including noise reduction, enhancement, and mastering",
-                  features: ["Noise reduction", "Audio enhancement", "Professional mastering"],
-                },
-                {
-                  icon: Sparkles,
-                  title: "Full Production",
-                  price: "$500",
-                  description: "Complete package from recording to final delivery with distribution support",
-                  features: ["Recording + Editing", "Intro/Outro music", "Distribution help"],
-                  popular: true,
-                },
-              ].map((service, index) => (
-                <ScrollReveal key={index} delay={index * 100}>
+              {services.slice(0, 3).map((service: any, index: number) => {
+                // Map service names to icons
+                const getServiceIcon = (name: string) => {
+                  if (name.toLowerCase().includes('recording')) return Radio
+                  if (name.toLowerCase().includes('editing')) return Headphones
+                  if (name.toLowerCase().includes('production')) return Sparkles
+                  if (name.toLowerCase().includes('rental')) return Mic
+                  return Radio // default icon
+                }
+                
+                return (
+                <ScrollReveal key={service._id || service.id} delay={index * 100}>
                   <Card
                     className={`border-border/50 hover:border-foreground/20 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group relative overflow-hidden h-full ${
-                      service.popular ? "ring-2 ring-foreground/20" : ""
+                      index === 1 ? "ring-2 ring-foreground/20" : ""
                     }`}
                   >
-                    {service.popular && (
+                    {index === 1 && (
                       <div className="absolute top-4 right-4 bg-foreground text-background text-xs font-bold px-3 py-1 rounded-full">
                         POPULAR
                       </div>
                     )}
                     <CardContent className="p-8 space-y-6">
                       <div className="w-16 h-16 rounded-2xl bg-foreground/5 flex items-center justify-center group-hover:bg-foreground/10 group-hover:scale-110 transition-all duration-300">
-                        <service.icon className="w-8 h-8" />
+                        {React.createElement(getServiceIcon(service.name), { className: "w-8 h-8" })}
                       </div>
                       <div>
-                        <h3 className="text-2xl font-semibold mb-2">{service.title}</h3>
-                        <p className="text-3xl font-bold text-muted-foreground">{service.price}</p>
+                        <h3 className="text-2xl font-semibold mb-2">{service.name}</h3>
+                        <p className="text-3xl font-bold text-muted-foreground">${service.price_per_hour}/hr</p>
                       </div>
                       <p className="text-muted-foreground leading-relaxed">{service.description}</p>
                       <ul className="space-y-2">
-                        {service.features.map((feature, idx) => (
+                        {service.features.slice(0, 3).map((feature: string, idx: number) => (
                           <li key={idx} className="flex items-center gap-2 text-sm">
                             <CheckCircle className="w-4 h-4 text-foreground/60" />
                             <span>{feature}</span>
@@ -428,7 +433,8 @@ export default function HomePage() {
                     </CardContent>
                   </Card>
                 </ScrollReveal>
-              ))}
+                )
+              })}
             </div>
 
             <div className="text-center mt-16">

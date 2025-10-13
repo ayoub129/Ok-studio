@@ -1,3 +1,4 @@
+import React from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { ScrollReveal } from "@/components/scroll-reveal"
@@ -11,104 +12,34 @@ export const metadata = {
   description: "Professional podcast recording, editing, and production services. View our packages and pricing.",
 }
 
-export default function ServicesPage() {
-  const services = [
-    {
-      icon: Radio,
-      name: "Podcast Recording",
-      price: "$150",
-      duration: "per hour",
-      description:
-        "Professional podcast recording in our state-of-the-art studio with premium equipment and technical support.",
-      features: [
-        "Professional microphones (Shure SM7B, Rode NT1-A)",
-        "Soundproof recording booth",
-        "Live monitoring and feedback",
-        "Multi-track recording capability",
-        "Technical support during session",
-        "Comfortable studio environment",
-      ],
-      popular: false,
-    },
-    {
-      icon: Headphones,
-      name: "Audio Editing",
-      price: "$100",
-      duration: "per hour",
-      description: "Expert audio editing and post-production to make your podcast sound polished and professional.",
-      features: [
-        "Noise reduction and cleanup",
-        "Audio enhancement and EQ",
-        "Music and sound effects integration",
-        "Final mastering for distribution",
-        "Multiple format exports",
-        "Fast turnaround time",
-      ],
-      popular: false,
-    },
-    {
-      icon: Sparkles,
-      name: "Full Production Package",
-      price: "$500",
-      duration: "4 hours",
-      description:
-        "Complete podcast production from recording to final delivery. Perfect for serious podcasters who want the best.",
-      features: [
-        "2-hour recording session",
-        "Professional editing and mixing",
-        "Intro/outro music production",
-        "Show notes and timestamps",
-        "Distribution to major platforms",
-        "Dedicated producer support",
-        "Priority scheduling",
-        "Unlimited revisions",
-      ],
-      popular: true,
-    },
-    {
-      icon: Mic,
-      name: "Studio Rental",
-      price: "$120",
-      duration: "per hour",
-      description: "Rent our premium studio space with all equipment included. Perfect for self-produced content.",
-      features: [
-        "Access to all studio equipment",
-        "Soundproof recording space",
-        "High-speed internet connection",
-        "Green screen available",
-        "Video recording capability",
-        "Flexible scheduling options",
-      ],
-      popular: false,
-    },
-  ]
+async function getServices() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services`, {
+      cache: 'no-store' // Ensure fresh data
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch services')
+    }
+    const data = await response.json()
+    return data.services || []
+  } catch (error) {
+    console.error('Error fetching services:', error)
+    return []
+  }
+}
 
-  const addOns = [
-    {
-      name: "Rush Delivery",
-      price: "$50",
-      description: "Get your edited podcast within 24 hours",
-      icon: Clock,
-    },
-    {
-      name: "Video Recording",
-      price: "$100/hr",
-      description: "Multi-camera video recording for YouTube or social media",
-      icon: Mic,
-    },
-    {
-      name: "Transcription Service",
-      price: "$75",
-      description: "Professional transcription of your podcast episode",
-      icon: Users,
-    },
-    {
-      name: "Social Media Clips",
-      price: "$150",
-      description: "5 short-form clips optimized for social media platforms",
-      icon: Award,
-    },
-  ]
+export default async function ServicesPage() {
+  const dbServices = await getServices()
+  
+  // Map service names to icons
+  const getServiceIcon = (name: string) => {
+    if (name.toLowerCase().includes('recording')) return Radio
+    if (name.toLowerCase().includes('editing')) return Headphones
+    if (name.toLowerCase().includes('production')) return Sparkles
+    if (name.toLowerCase().includes('rental')) return Mic
+    return Radio // default icon
+  }
+
 
   return (
     <div className="min-h-screen">
@@ -162,14 +93,14 @@ export default function ServicesPage() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {services.map((service, index) => (
-                <ScrollReveal key={index} delay={index * 150}>
+            {dbServices.map((service: any, index: number) => (
+                <ScrollReveal key={service._id || service.id} delay={index * 150}>
               <Card
                     className={`relative border-border/50 hover:border-foreground/20 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 group ${
-                      service.popular ? "ring-2 ring-foreground/20 scale-105" : ""
+                      index === 1 ? "ring-2 ring-foreground/20 scale-105" : ""
                 }`}
               >
-                {service.popular && (
+                {index === 1 && (
                       <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-foreground text-background text-sm font-bold rounded-full shadow-lg">
                         <Star className="w-4 h-4 inline mr-1" />
                     Most Popular
@@ -178,21 +109,21 @@ export default function ServicesPage() {
                     <CardHeader className="space-y-6 pb-8">
                       <div className="flex items-start justify-between">
                         <div className="w-16 h-16 rounded-2xl bg-foreground/5 flex items-center justify-center group-hover:bg-foreground/10 group-hover:scale-110 transition-all duration-300">
-                          <service.icon className="w-8 h-8" />
+                          {React.createElement(getServiceIcon(service.name), { className: "w-8 h-8" })}
                         </div>
-                        {service.popular && (
+                        {index === 1 && (
                           <div className="text-right">
-                            <div className="text-2xl font-bold text-foreground">{service.price}</div>
-                            <div className="text-sm text-muted-foreground">{service.duration}</div>
+                            <div className="text-2xl font-bold text-foreground">${service.price_per_hour}/hr</div>
+                            <div className="text-sm text-muted-foreground">{service.duration_hours} hour{service.duration_hours > 1 ? 's' : ''}</div>
                           </div>
                         )}
                   </div>
                   <div>
                         <CardTitle className="text-3xl mb-3">{service.name}</CardTitle>
-                        {!service.popular && (
+                        {index !== 1 && (
                           <div className="flex items-baseline gap-2 mb-4">
-                      <span className="text-4xl font-bold">{service.price}</span>
-                      <span className="text-muted-foreground">{service.duration}</span>
+                      <span className="text-4xl font-bold">${service.price_per_hour}</span>
+                      <span className="text-muted-foreground">per hour</span>
                     </div>
                         )}
                         <p className="text-muted-foreground leading-relaxed text-lg">{service.description}</p>
@@ -200,7 +131,7 @@ export default function ServicesPage() {
                 </CardHeader>
                     <CardContent className="space-y-8">
                       <ul className="space-y-4">
-                    {service.features.map((feature, featureIndex) => (
+                    {service.features.map((feature: string, featureIndex: number) => (
                       <li key={featureIndex} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-foreground flex-shrink-0 mt-0.5" />
                             <span className="text-muted-foreground">{feature}</span>
@@ -210,7 +141,7 @@ export default function ServicesPage() {
                   <Button
                     asChild
                         className={`w-full h-14 text-lg font-semibold transition-all duration-300 hover:scale-105 ${
-                      service.popular
+                      index === 1
                             ? "bg-foreground text-background hover:bg-foreground/90 shadow-lg"
                             : "bg-foreground/10 text-foreground border-2 border-foreground/20 hover:bg-foreground hover:text-background hover:border-foreground"
                     }`}
@@ -242,47 +173,6 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Additional Services Section */}
-      <ScrollReveal>
-        <section className="py-24 lg:py-32 bg-muted/20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-balance">
-              Additional Services
-            </h2>
-              <p className="text-xl text-muted-foreground text-pretty leading-relaxed">
-                Enhance your podcast with these premium add-on services
-            </p>
-          </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {addOns.map((addon, index) => (
-                <ScrollReveal key={index} delay={index * 100}>
-                  <Card className="border-border/50 hover:border-foreground/20 transition-all duration-500 hover:shadow-xl hover:-translate-y-2 group h-full">
-                    <CardContent className="p-8 space-y-6 text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-foreground/5 flex items-center justify-center mx-auto group-hover:bg-foreground/10 group-hover:scale-110 transition-all duration-300">
-                        <addon.icon className="w-8 h-8" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold mb-2">{addon.name}</h3>
-                        <div className="text-2xl font-bold text-foreground mb-3">{addon.price}</div>
-                  </div>
-                      <p className="text-muted-foreground leading-relaxed">{addon.description}</p>
-                      <Button
-                        asChild
-                        variant="outline"
-                        className="w-full bg-transparent border-foreground/20 text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
-                      >
-                        <Link href="/booking">Add to Booking</Link>
-                      </Button>
-                </CardContent>
-              </Card>
-                </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-      </ScrollReveal>
 
       {/* Process Section */}
       <ScrollReveal>
