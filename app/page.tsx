@@ -23,17 +23,29 @@ import {
   CheckCircle,
   Calendar,
 } from "lucide-react"
+import connectDB from "@/lib/mongodb"
+import Service from "@/lib/models/Service"
 
 async function getServices() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services`, {
-      cache: 'no-store' // Ensure fresh data
-    })
-    if (!response.ok) {
-      throw new Error('Failed to fetch services')
-    }
-    const data = await response.json()
-    return data.services || []
+    await connectDB()
+    
+    const services = await Service.find({ is_active: true }).sort({ name: 1 })
+    
+    // Convert MongoDB _id to id for frontend compatibility
+    const formattedServices = services.map(service => ({
+      id: service._id.toString(),
+      _id: service._id.toString(),
+      name: service.name,
+      description: service.description,
+      price_per_hour: service.price_per_hour,
+      duration_hours: service.duration_hours,
+      features: service.features,
+      is_active: service.is_active,
+      created_at: service.created_at
+    }))
+    
+    return formattedServices
   } catch (error) {
     console.error('Error fetching services:', error)
     return []
