@@ -185,6 +185,12 @@ export default function AdminDashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-12 px-6 bg-background/50 border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-300 hover:scale-105">
+                <Link href="/admin/services">
+                  <Settings className="w-5 h-5 mr-3" />
+                  Manage Services
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-12 px-6 bg-background/50 border-foreground/20 hover:bg-foreground hover:text-background transition-all duration-300 hover:scale-105">
                 <Link href="/admin/analytics">
                   <BarChart3 className="w-5 h-5 mr-3" />
                   Analytics
