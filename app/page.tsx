@@ -1,6 +1,8 @@
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { AnimatedTitle } from "@/components/animated-title"
+import { AnimatedCounter } from "@/components/animated-counter"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
@@ -57,8 +59,8 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-20">
-          <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in-up">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-24">
+          <div className="max-w-4xl mx-auto text-center space-y-10 animate-fade-in-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-foreground/5 border border-foreground/10 text-sm font-medium animate-scale-in">
               <Sparkles className="w-4 h-4" />
               <span>Professional Podcast Studio</span>
@@ -67,7 +69,7 @@ export default function HomePage() {
             <h1 className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight text-balance leading-tight">
               Create Your Best
               <span className="block mt-2 bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent">
-                Podcast Content
+                <AnimatedTitle />
               </span>
             </h1>
 
@@ -76,7 +78,7 @@ export default function HomePage() {
               podcast vision to life.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
               <Button
                 asChild
                 size="lg"
@@ -95,14 +97,18 @@ export default function HomePage() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 pt-16 max-w-2xl mx-auto">
+            <div className="grid grid-cols-3 gap-8 pt-20 max-w-2xl mx-auto">
               {[
-                { value: "500+", label: "Episodes Recorded" },
-                { value: "150+", label: "Happy Clients" },
-                { value: "4.9★", label: "Average Rating" },
+                { value: 500, suffix: "+", label: "Episodes Recorded" },
+                { value: 150, suffix: "+", label: "Happy Clients" },
+                { value: 4.9, suffix: "★", label: "Average Rating" },
               ].map((stat, index) => (
-                <div key={index} className={`space-y-1 animate-fade-in-up animate-delay-${(index + 1) * 100}`}>
-                  <div className="text-3xl sm:text-5xl font-bold">{stat.value}</div>
+                <div key={index} className={`space-y-2 animate-fade-in-up animate-delay-${(index + 1) * 100}`}>
+                  <AnimatedCounter 
+                    end={stat.value} 
+                    suffix={stat.suffix}
+                    duration={2500}
+                  />
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </div>
               ))}
@@ -119,9 +125,9 @@ export default function HomePage() {
       </section>
 
       <ScrollReveal>
-        <section className="py-16 bg-muted/20 border-y border-border/50">
+        <section className="py-20 bg-muted/20 border-y border-border/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-wider">
+            <p className="text-center text-sm text-muted-foreground mb-12 uppercase tracking-wider">
               Trusted by leading podcasters
             </p>
             <div className="flex flex-wrap items-center justify-center gap-12 opacity-50">
@@ -503,16 +509,20 @@ export default function HomePage() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-5xl mx-auto">
               {[
-                { icon: Users, value: "150+", label: "Active Clients" },
-                { icon: Mic, value: "500+", label: "Episodes Produced" },
-                { icon: Award, value: "15+", label: "Industry Awards" },
-                { icon: TrendingUp, value: "98%", label: "Client Satisfaction" },
+                { icon: Users, value: 150, suffix: "+", label: "Active Clients" },
+                { icon: Mic, value: 500, suffix: "+", label: "Episodes Produced" },
+                { icon: Award, value: 15, suffix: "+", label: "Industry Awards" },
+                { icon: TrendingUp, value: 98, suffix: "%", label: "Client Satisfaction" },
               ].map((stat, index) => (
-                <div key={index} className="text-center space-y-4">
+                <div key={index} className="text-center space-y-6">
                   <div className="w-16 h-16 rounded-2xl bg-background/10 flex items-center justify-center mx-auto">
                     <stat.icon className="w-8 h-8" />
                   </div>
-                  <div className="text-4xl sm:text-5xl font-bold">{stat.value}</div>
+                  <AnimatedCounter 
+                    end={stat.value} 
+                    suffix={stat.suffix}
+                    duration={3000}
+                  />
                   <div className="text-background/80 text-sm">{stat.label}</div>
                 </div>
               ))}

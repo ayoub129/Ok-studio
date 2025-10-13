@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Suspense } from "react"
 import { CustomCursor } from "@/components/custom-cursor"
+import { LoadingScreen } from "@/components/loading-screen"
 
 export const metadata: Metadata = {
   title: "The OK Studios - Professional Podcast Recording Studio",
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <CustomCursor />
-        <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
+        <LoadingScreen>
+          <CustomCursor />
+          <Suspense fallback={null}>{children}</Suspense>
+          <Analytics />
+        </LoadingScreen>
       </body>
     </html>
   )

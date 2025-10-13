@@ -1,18 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import connectDB from "@/lib/mongodb"
+import Booking from "@/lib/models/Booking"
+import mongoose from "mongoose"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const supabase = await getSupabaseServerClient()
+    await connectDB()
 
-    const { data: booking, error } = await supabase
-      .from("bookings")
-      .select("*")
-      .eq("id", params.id)
-      .single()
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json({ error: "Invalid booking ID" }, { status: 400 })
+    }
 
-    if (error) {
-      console.error("[v0] Error fetching booking:", error)
+    const booking = await Booking.findById(params.id)
+
+    if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 })
     }
 

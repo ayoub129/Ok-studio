@@ -4,21 +4,17 @@ import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
-import { PaymentForm } from "@/components/payment-form"
+import { SquarePaymentForm } from "@/components/square-payment-form"
 import { Card, CardContent } from "@/components/ui/card"
-import { Elements } from "@stripe/react-stripe-js"
-import { loadStripe } from "@stripe/stripe-js"
 import { Sparkles, Calendar, Clock, User, Loader2 } from "lucide-react"
 import type { Booking } from "@/lib/types"
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 function PaymentContent() {
   const searchParams = useSearchParams()
   const bookingId = searchParams.get("bookingId")
 
   const [booking, setBooking] = useState<Booking | null>(null)
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,20 +31,10 @@ function PaymentContent() {
       .then((data) => {
         if (data.booking) {
           setBooking(data.booking)
-          // Create payment intent
-          return fetch("/api/stripe/create-payment-intent", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ bookingId }),
-          })
+          setIsLoading(false)
         } else {
           throw new Error("Booking not found")
         }
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        setClientSecret(data.clientSecret)
-        setIsLoading(false)
       })
       .catch((error) => {
         console.error("[v0] Error loading payment:", error)
@@ -68,7 +54,7 @@ function PaymentContent() {
     )
   }
 
-  if (error || !booking || !clientSecret) {
+  if (error || !booking) {
     return (
       <div className="min-h-screen">
         <Navigation />
@@ -155,26 +141,17 @@ function PaymentContent() {
             </Card>
 
             {/* Payment Form */}
-            <Elements
-              stripe={stripePromise}
-              options={{
-                clientSecret,
-                appearance: {
-                  theme: "stripe",
-                  variables: {
-                    colorPrimary: "#000000",
-                    colorBackground: "#ffffff",
-                    colorText: "#000000",
-                    colorDanger: "#df1b41",
-                    fontFamily: "system-ui, sans-serif",
-                    spacingUnit: "4px",
-                    borderRadius: "8px",
-                  },
-                },
+            <SquarePaymentForm 
+              bookingId={booking.id} 
+              amount={booking.total_price} 
+              onSuccess={(paymentResult) => {
+                // Redirect to success page
+                window.location.href = `/booking/success?bookingId=${booking.id}`
               }}
-            >
-              <PaymentForm bookingId={booking.id} amount={booking.total_price} onSuccess={() => {}} />
-            </Elements>
+              onError={(error) => {
+                console.error('Payment error:', error)
+              }}
+            />
           </div>
         </div>
       </section>

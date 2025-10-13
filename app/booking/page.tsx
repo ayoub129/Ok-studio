@@ -24,6 +24,7 @@ export default function BookingPage() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [bookedTimes, setBookedTimes] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [servicesLoading, setServicesLoading] = useState(true)
 
   const [formData, setFormData] = useState({
     client_name: "",
@@ -34,10 +35,18 @@ export default function BookingPage() {
 
   // Fetch services
   useEffect(() => {
+    setServicesLoading(true)
     fetch("/api/services")
       .then((res) => res.json())
-      .then((data) => setServices(data.services || []))
-      .catch((error) => console.error("[v0] Error fetching services:", error))
+      .then((data) => {
+        console.log("[v0] Fetched services:", data.services)
+        setServices(data.services || [])
+        setServicesLoading(false)
+      })
+      .catch((error) => {
+        console.error("[v0] Error fetching services:", error)
+        setServicesLoading(false)
+      })
   }, [])
 
   // Fetch available times when date is selected
@@ -52,7 +61,10 @@ export default function BookingPage() {
   }, [selectedDate])
 
   const handleServiceSelect = (serviceId: string) => {
+    console.log("[v0] Service selected:", serviceId)
+    console.log("[v0] Available services:", services)
     const service = services.find((s) => s.id === serviceId)
+    console.log("[v0] Found service:", service)
     setSelectedService(service || null)
   }
 
@@ -80,11 +92,12 @@ export default function BookingPage() {
 
       const data = await response.json()
 
-      if (response.ok) {
+      if (response.ok && data.booking && data.booking._id) {
         // Redirect to payment page
-        router.push(`/booking/payment?bookingId=${data.booking.id}`)
+        router.push(`/booking/payment?bookingId=${data.booking._id}`)
       } else {
-        alert("Failed to create booking. Please try again.")
+        console.error("Booking creation failed:", data)
+        alert(`Failed to create booking: ${data.error || 'Unknown error'}. Please try again.`)
       }
     } catch (error) {
       console.error("[v0] Error creating booking:", error)
@@ -164,18 +177,28 @@ export default function BookingPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Select onValueChange={handleServiceSelect}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a service" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {services.map((service) => (
-                        <SelectItem key={service.id} value={service.id}>
-                          {service.name} - ${service.price_per_hour}/hr ({service.duration_hours}h session)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {servicesLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="text-sm text-muted-foreground">Loading services...</div>
+                    </div>
+                  ) : services.length === 0 ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="text-sm text-muted-foreground">No services available</div>
+                    </div>
+                  ) : (
+                    <Select onValueChange={handleServiceSelect}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose a service" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {services.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - ${service.price_per_hour}/hr ({service.duration_hours}h session)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   {selectedService && (
                     <div className="mt-4 p-4 bg-muted/50 rounded-lg">
                       <p className="text-sm text-muted-foreground">{selectedService.description}</p>
